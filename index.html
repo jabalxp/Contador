@@ -2,163 +2,200 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contador</title>
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            text-align: center;
-            top: 250px;
-            position: relative;
-            background-color: #F1F5F8;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contador</title>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+      top: 250px;
+      position: relative;
+      background-color: #F1F5F8;
+    }
 
 
-        #resetar, #somar, #subtrair{
-            border-radius: 35px;
-            border: 1px solid black;
-            padding: 10px;
-            background-color: white;
-        }
+    #resetar,
+    #somar,
+    #subtrair {
+      border-radius: 35px;
+      border: 1px solid black;
+      padding: 10px;
+      background-color: white;
+    }
 
-        #resetar:hover {
-            border-color: red;
-            transition: 0.4s;
-            cursor: pointer;
-        }
+    #resetar:hover {
+      border-color: red;
+      transition: 0.4s;
+      cursor: pointer;
+    }
 
-        #somar:hover {
-            border-color: green;
-            transition: 0.4s;
-            cursor: pointer;
-        }
+    #somar:hover {
+      border-color: green;
+      transition: 0.4s;
+      cursor: pointer;
+    }
 
-        #subtrair:hover {
-            border-color: yellow;
-            transition: 0.4s;
-            cursor: pointer;
-        }
+    #subtrair:hover {
+      border-color: yellow;
+      transition: 0.4s;
+      cursor: pointer;
+    }
 
-        p{
-            font-size: 100px;
-            margin: 0;
-            font-family: 'Courier New', Courier, monospace;
-            color:cadetblue;
-        }
-    </style>
+    p {
+      font-size: 100px;
+      margin: 0;
+      font-family: 'Courier New', Courier, monospace;
+      color: cadetblue;
+    }
+  </style>
 </head>
 
 <body>
-    
-    <h1>Contador de Punheta</h1>
 
-    <p id="contador">0</p>
-    <div>
-        <button id="somar" onclick="somar()">Aumentar</button>
-        <button id="subtrair" onclick="subtrair()" disabled>Diminuir</button>
-        <button type="reset" onclick="resetar()" id="resetar">Resetar</button>
-    </div>
-    <script>
+  <h1>Contador de Punheta</h1>
+
+  <p id="contador">0</p>
+  <div>
+    <button id="somar" onclick="somar()">Aumentar</button>
+    <button id="subtrair" onclick="subtrair()" disabled>Diminuir</button>
+    <button type="reset" onclick="resetar()" id="resetar">Resetar</button>
+  </div>
+  <script>
     // Recupera o valor salvo do contador ou começa em 0
     let contador = localStorage.getItem("contador") !== null ? parseInt(localStorage.getItem("contador")) : 0;
 
     // Recupera ou define a data de reset
     let dataReset = localStorage.getItem("dataReset");
     if (!dataReset) {
-        // Se não existe, define para o mesmo dia do mês seguinte
-        const hoje = new Date();
-        let proximoMes = hoje.getMonth() + 1;
-        let ano = hoje.getFullYear();
-        if (proximoMes > 11) {
-            proximoMes = 0;
-            ano++;
-        }
-        // Ajusta para o mesmo dia, se possível, senão último dia do mês
-        let dia = hoje.getDate();
-        let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
-        if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
-        const dataResetObj = new Date(ano, proximoMes, dia);
-        dataReset = dataResetObj.toISOString().split('T')[0];
-        localStorage.setItem("dataReset", dataReset);
+      // Se não existe, define para o mesmo dia do mês seguinte
+      const hoje = new Date();
+      let proximoMes = hoje.getMonth() + 1;
+      let ano = hoje.getFullYear();
+      if (proximoMes > 11) {
+        proximoMes = 0;
+        ano++;
+      }
+      // Ajusta para o mesmo dia, se possível, senão último dia do mês
+      let dia = hoje.getDate();
+      let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
+      if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
+      const dataResetObj = new Date(ano, proximoMes, dia);
+      dataReset = dataResetObj.toISOString().split('T')[0];
+      localStorage.setItem("dataReset", dataReset);
     }
 
     // Checa se precisa resetar o contador
     const hojeStr = new Date().toISOString().split('T')[0];
     if (hojeStr >= dataReset) {
-        contador = 0;
-        localStorage.setItem("contador", contador);
-        // Define próxima data de reset
-        const hoje = new Date();
-        let proximoMes = hoje.getMonth() + 1;
-        let ano = hoje.getFullYear();
-        if (proximoMes > 11) {
-            proximoMes = 0;
-            ano++;
-        }
-        let dia = hoje.getDate();
-        let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
-        if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
-        const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
-        localStorage.setItem("dataReset", novaDataReset);
-        dataReset = novaDataReset;
+      contador = 0;
+      localStorage.setItem("contador", contador);
+      // Define próxima data de reset
+      const hoje = new Date();
+      let proximoMes = hoje.getMonth() + 1;
+      let ano = hoje.getFullYear();
+      if (proximoMes > 11) {
+        proximoMes = 0;
+        ano++;
+      }
+      let dia = hoje.getDate();
+      let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
+      if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
+      const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
+      localStorage.setItem("dataReset", novaDataReset);
+      dataReset = novaDataReset;
     }
 
-        function somar() {
-            contador++;
-            document.getElementById("contador").innerText = contador;
-            localStorage.setItem("contador", contador);
-            if (contador > 0) {
-                document.getElementById("subtrair").disabled = false;
-            }
-        }
+    function somar() {
+      contador++;
+      document.getElementById("contador").innerText = contador;
+      localStorage.setItem("contador", contador);
+      if (contador > 0) {
+        document.getElementById("subtrair").disabled = false;
+      }
 
-        function subtrair() {
-            contador--;
-            document.getElementById("contador").innerText = contador;
-            localStorage.setItem("contador", contador);
-            if (contador <= 0) {
-                document.getElementById("subtrair").disabled = true;
-            } 
-        }
-
-        function resetar() {
-            contador = 0;
-            document.getElementById("contador").innerText = contador;
-            localStorage.setItem("contador", contador);
-            // Atualiza data de reset para o próximo mês
-            const hoje = new Date();
-            let proximoMes = hoje.getMonth() + 1;
-            let ano = hoje.getFullYear();
-            if (proximoMes > 11) {
-                proximoMes = 0;
-                ano++;
-            }
-            let dia = hoje.getDate();
-            let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
-            if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
-            const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
-            localStorage.setItem("dataReset", novaDataReset);
-            dataReset = novaDataReset;
-            if (contador <= 0) {
-                document.getElementById("subtrair").disabled = true;
-            } else {
-                document.getElementById("subtrair").disabled = false;
-            }
-        }
-        // Atualiza o valor do contador e estado do botão ao carregar a página
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("contador").innerText = contador;
-            if (contador <= 0) {
-                document.getElementById("subtrair").disabled = true;
-            } else {
-                document.getElementById("subtrair").disabled = false;
-            }
+      // Track analytics event
+      if (window.va) {
+        window.va('track', 'Contador Aumentado', {
+          valor: contador,
+          acao: 'somar'
         });
+      }
+    }
+
+    function subtrair() {
+      contador--;
+      document.getElementById("contador").innerText = contador;
+      localStorage.setItem("contador", contador);
+      if (contador <= 0) {
+        document.getElementById("subtrair").disabled = true;
+      }
+
+      // Track analytics event
+      if (window.va) {
+        window.va('track', 'Contador Diminuído', {
+          valor: contador,
+          acao: 'subtrair'
+        });
+      }
+    }
+
+    function resetar() {
+      contador = 0;
+      document.getElementById("contador").innerText = contador;
+      localStorage.setItem("contador", contador);
+      // Atualiza data de reset para o próximo mês
+      const hoje = new Date();
+      let proximoMes = hoje.getMonth() + 1;
+      let ano = hoje.getFullYear();
+      if (proximoMes > 11) {
+        proximoMes = 0;
+        ano++;
+      }
+      let dia = hoje.getDate();
+      let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
+      if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
+      const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
+      localStorage.setItem("dataReset", novaDataReset);
+      dataReset = novaDataReset;
+      if (contador <= 0) {
+        document.getElementById("subtrair").disabled = true;
+      } else {
+        document.getElementById("subtrair").disabled = false;
+      }
+
+      // Track analytics event
+      if (window.va) {
+        window.va('track', 'Contador Resetado', {
+          valor: contador,
+          acao: 'resetar'
+        });
+      }
+    }
+    // Atualiza o valor do contador e estado do botão ao carregar a página
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("contador").innerText = contador;
+      if (contador <= 0) {
+        document.getElementById("subtrair").disabled = true;
+      } else {
+        document.getElementById("subtrair").disabled = false;
+      }
+
+      // Track page view
+      if (window.va) {
+        window.va('track', 'Page View', {
+          pagina: 'contador',
+          valor_inicial: contador
+        });
+      }
+    });
 
 
-        import { Analytics } from "@vercel/analytics/next";
-    </script>
+  </script>
 </body>
 
 </html>
