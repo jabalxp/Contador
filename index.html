@@ -14,11 +14,6 @@
             background-color: #F1F5F8;
         }
 
-        div {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-        }
 
         #resetar, #somar, #subtrair{
             border-radius: 35px;
@@ -64,11 +59,54 @@
         <button type="reset" onclick="resetar()" id="resetar">Resetar</button>
     </div>
     <script>
-        let contador = 0;
+    // Recupera o valor salvo do contador ou começa em 0
+    let contador = localStorage.getItem("contador") !== null ? parseInt(localStorage.getItem("contador")) : 0;
+
+    // Recupera ou define a data de reset
+    let dataReset = localStorage.getItem("dataReset");
+    if (!dataReset) {
+        // Se não existe, define para o mesmo dia do mês seguinte
+        const hoje = new Date();
+        let proximoMes = hoje.getMonth() + 1;
+        let ano = hoje.getFullYear();
+        if (proximoMes > 11) {
+            proximoMes = 0;
+            ano++;
+        }
+        // Ajusta para o mesmo dia, se possível, senão último dia do mês
+        let dia = hoje.getDate();
+        let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
+        if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
+        const dataResetObj = new Date(ano, proximoMes, dia);
+        dataReset = dataResetObj.toISOString().split('T')[0];
+        localStorage.setItem("dataReset", dataReset);
+    }
+
+    // Checa se precisa resetar o contador
+    const hojeStr = new Date().toISOString().split('T')[0];
+    if (hojeStr >= dataReset) {
+        contador = 0;
+        localStorage.setItem("contador", contador);
+        // Define próxima data de reset
+        const hoje = new Date();
+        let proximoMes = hoje.getMonth() + 1;
+        let ano = hoje.getFullYear();
+        if (proximoMes > 11) {
+            proximoMes = 0;
+            ano++;
+        }
+        let dia = hoje.getDate();
+        let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
+        if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
+        const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
+        localStorage.setItem("dataReset", novaDataReset);
+        dataReset = novaDataReset;
+    }
 
         function somar() {
             contador++;
             document.getElementById("contador").innerText = contador;
+            localStorage.setItem("contador", contador);
             if (contador > 0) {
                 document.getElementById("subtrair").disabled = false;
             }
@@ -77,22 +115,45 @@
         function subtrair() {
             contador--;
             document.getElementById("contador").innerText = contador;
+            localStorage.setItem("contador", contador);
+            if (contador <= 0) {
+                document.getElementById("subtrair").disabled = true;
+            } 
+        }
+
+        function resetar() {
+            contador = 0;
+            document.getElementById("contador").innerText = contador;
+            localStorage.setItem("contador", contador);
+            // Atualiza data de reset para o próximo mês
+            const hoje = new Date();
+            let proximoMes = hoje.getMonth() + 1;
+            let ano = hoje.getFullYear();
+            if (proximoMes > 11) {
+                proximoMes = 0;
+                ano++;
+            }
+            let dia = hoje.getDate();
+            let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
+            if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
+            const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
+            localStorage.setItem("dataReset", novaDataReset);
+            dataReset = novaDataReset;
             if (contador <= 0) {
                 document.getElementById("subtrair").disabled = true;
             } else {
                 document.getElementById("subtrair").disabled = false;
             }
         }
-
-        function resetar() {
-            contador = 0;
+        // Atualiza o valor do contador e estado do botão ao carregar a página
+        document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("contador").innerText = contador;
             if (contador <= 0) {
                 document.getElementById("subtrair").disabled = true;
             } else {
                 document.getElementById("subtrair").disabled = false;
             }
-        }
+        });
 
 
     </script>
