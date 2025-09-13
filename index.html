@@ -16,6 +16,102 @@
       top: 250px;
       position: relative;
       background-color: #F1F5F8;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Menu lateral */
+    .sidebar {
+      position: fixed;
+      top: 20px;
+      left: -250px;
+      width: 250px;
+      height: auto;
+      max-height: 80vh;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 10px;
+      padding: 20px;
+      transition: left 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar.open {
+      left: 20px;
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-toggle:hover {
+      background: #555;
+    }
+
+    .sidebar h3 {
+      margin: 0 0 15px 0;
+      color: #333;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .month-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .month-item:last-child {
+      border-bottom: none;
+    }
+
+    .month-name {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .month-count {
+      color: cadetblue;
+      font-weight: bold;
+    }
+
+    /* Contador diário */
+    .contador-diario {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255,255,255,0.8);
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      display: inline-block;
+    }
+
+    .contador-diario h3 {
+      margin: 0 0 10px 0;
+      color: #555;
+      font-size: 18px;
+    }
+
+    .contador-diario p {
+      font-size: 40px !important;
+      margin: 0;
+      color: orange;
     }
 
 
@@ -52,12 +148,97 @@
       font-family: 'Courier New', Courier, monospace;
       color: cadetblue;
     }
+
+    /* Media queries para celular */
+    @media (max-width: 768px) {
+      body {
+        top: 150px;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+        margin: 20px 0;
+      }
+
+      p {
+        font-size: 60px !important;
+      }
+
+      .contador-diario p {
+        font-size: 30px !important;
+      }
+
+      #resetar, #somar, #subtrair {
+        padding: 15px 20px;
+        margin: 5px;
+        font-size: 16px;
+      }
+
+      .sidebar {
+        width: 200px;
+        left: -220px;
+        padding: 15px;
+      }
+
+      .sidebar.open {
+        left: 10px;
+      }
+
+      .sidebar-toggle {
+        top: 10px;
+        left: 10px;
+        width: 45px;
+        height: 45px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        top: 100px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      p {
+        font-size: 50px !important;
+      }
+
+      .contador-diario p {
+        font-size: 25px !important;
+      }
+
+      .sidebar {
+        width: calc(100vw - 40px);
+        left: -100vw;
+        top: 10px;
+        right: 10px;
+      }
+
+      .sidebar.open {
+        left: 10px;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <!-- Menu lateral -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()">📊</button>
+  <div class="sidebar" id="sidebar">
+    <h3>Histórico Mensal</h3>
+    <div id="historico-mensal"></div>
+  </div>
 
   <h1>Contador de Punheta</h1>
+
+  <!-- Contador diário -->
+  <div class="contador-diario">
+    <h3>Hoje (últimas 24h)</h3>
+    <p id="contador-diario">0</p>
+  </div>
 
   <p id="contador">0</p>
   <div>
@@ -66,13 +247,86 @@
     <button type="reset" onclick="resetar()" id="resetar">Resetar</button>
   </div>
   <script>
-    // Recupera o valor salvo do contador ou começa em 0
+    // Variáveis globais
     let contador = localStorage.getItem("contador") !== null ? parseInt(localStorage.getItem("contador")) : 0;
+    let contadorDiario = 0;
 
-    // Recupera ou define a data de reset
+    // Função para toggle do sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("open");
+    }
+
+    // Função para obter chave do mês atual
+    function obterChaveMes(data = new Date()) {
+      return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    // Função para obter nome do mês
+    function obterNomeMes(chaveMes) {
+      const [ano, mes] = chaveMes.split('-');
+      const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                     'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      return `${meses[parseInt(mes) - 1]} ${ano}`;
+    }
+
+    // Função para salvar histórico mensal
+    function salvarHistoricoMensal(incremento = 0) {
+      const chaveMes = obterChaveMes();
+      const historico = JSON.parse(localStorage.getItem("historicoMensal") || "{}");
+      historico[chaveMes] = (historico[chaveMes] || 0) + incremento;
+      localStorage.setItem("historicoMensal", JSON.stringify(historico));
+      atualizarSidebar();
+    }
+
+    // Função para atualizar sidebar com histórico
+    function atualizarSidebar() {
+      const historico = JSON.parse(localStorage.getItem("historicoMensal") || "{}");
+      const historicoDiv = document.getElementById("historico-mensal");
+      
+      if (Object.keys(historico).length === 0) {
+        historicoDiv.innerHTML = '<p style="color: #999;">Nenhum dado ainda</p>';
+        return;
+      }
+
+      const mesesOrdenados = Object.keys(historico).sort().reverse();
+      let html = '';
+      
+      mesesOrdenados.forEach(chaveMes => {
+        const nomeMes = obterNomeMes(chaveMes);
+        const quantidade = historico[chaveMes];
+        html += `
+          <div class="month-item">
+            <span class="month-name">${nomeMes}</span>
+            <span class="month-count">${quantidade}</span>
+          </div>
+        `;
+      });
+      
+      historicoDiv.innerHTML = html;
+    }
+
+    // Contador diário com reset 24h
+    function gerenciarContadorDiario() {
+      const agora = new Date();
+      const ultimaData = localStorage.getItem("ultimaDataDiaria");
+      const hoje = agora.toISOString().split('T')[0];
+      
+      if (ultimaData !== hoje) {
+        // Reset diário
+        contadorDiario = 0;
+        localStorage.setItem("contadorDiario", "0");
+        localStorage.setItem("ultimaDataDiaria", hoje);
+      } else {
+        contadorDiario = parseInt(localStorage.getItem("contadorDiario") || "0");
+      }
+      
+      document.getElementById("contador-diario").innerText = contadorDiario;
+    }
+
+    // Contador mensal existente
     let dataReset = localStorage.getItem("dataReset");
     if (!dataReset) {
-      // Se não existe, define para o mesmo dia do mês seguinte
       const hoje = new Date();
       let proximoMes = hoje.getMonth() + 1;
       let ano = hoje.getFullYear();
@@ -80,7 +334,6 @@
         proximoMes = 0;
         ano++;
       }
-      // Ajusta para o mesmo dia, se possível, senão último dia do mês
       let dia = hoje.getDate();
       let ultimoDiaProxMes = new Date(ano, proximoMes + 1, 0).getDate();
       if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
@@ -89,12 +342,10 @@
       localStorage.setItem("dataReset", dataReset);
     }
 
-    // Checa se precisa resetar o contador
     const hojeStr = new Date().toISOString().split('T')[0];
     if (hojeStr >= dataReset) {
       contador = 0;
       localStorage.setItem("contador", contador);
-      // Define próxima data de reset
       const hoje = new Date();
       let proximoMes = hoje.getMonth() + 1;
       let ano = hoje.getFullYear();
@@ -112,35 +363,55 @@
 
     function somar() {
       contador++;
+      contadorDiario++;
+      
       document.getElementById("contador").innerText = contador;
+      document.getElementById("contador-diario").innerText = contadorDiario;
+      
       localStorage.setItem("contador", contador);
+      localStorage.setItem("contadorDiario", contadorDiario);
+      
+      salvarHistoricoMensal(1);
+      
       if (contador > 0) {
         document.getElementById("subtrair").disabled = false;
       }
 
-      // Track analytics event
       if (window.va) {
         window.va('track', 'Contador Aumentado', {
           valor: contador,
+          diario: contadorDiario,
           acao: 'somar'
         });
       }
     }
 
     function subtrair() {
-      contador--;
-      document.getElementById("contador").innerText = contador;
-      localStorage.setItem("contador", contador);
-      if (contador <= 0) {
-        document.getElementById("subtrair").disabled = true;
-      }
+      if (contador > 0) {
+        contador--;
+        if (contadorDiario > 0) {
+          contadorDiario--;
+        }
+        
+        document.getElementById("contador").innerText = contador;
+        document.getElementById("contador-diario").innerText = contadorDiario;
+        
+        localStorage.setItem("contador", contador);
+        localStorage.setItem("contadorDiario", contadorDiario);
+        
+        salvarHistoricoMensal(-1);
+        
+        if (contador <= 0) {
+          document.getElementById("subtrair").disabled = true;
+        }
 
-      // Track analytics event
-      if (window.va) {
-        window.va('track', 'Contador Diminuído', {
-          valor: contador,
-          acao: 'subtrair'
-        });
+        if (window.va) {
+          window.va('track', 'Contador Diminuído', {
+            valor: contador,
+            diario: contadorDiario,
+            acao: 'subtrair'
+          });
+        }
       }
     }
 
@@ -148,7 +419,7 @@
       contador = 0;
       document.getElementById("contador").innerText = contador;
       localStorage.setItem("contador", contador);
-      // Atualiza data de reset para o próximo mês
+      
       const hoje = new Date();
       let proximoMes = hoje.getMonth() + 1;
       let ano = hoje.getFullYear();
@@ -162,13 +433,9 @@
       const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
       localStorage.setItem("dataReset", novaDataReset);
       dataReset = novaDataReset;
-      if (contador <= 0) {
-        document.getElementById("subtrair").disabled = true;
-      } else {
-        document.getElementById("subtrair").disabled = false;
-      }
+      
+      document.getElementById("subtrair").disabled = true;
 
-      // Track analytics event
       if (window.va) {
         window.va('track', 'Contador Resetado', {
           valor: contador,
@@ -176,25 +443,37 @@
         });
       }
     }
-    // Atualiza o valor do contador e estado do botão ao carregar a página
-    document.addEventListener("DOMContentLoaded", function () {
+
+    // Inicialização
+    document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("contador").innerText = contador;
+      gerenciarContadorDiario();
+      atualizarSidebar();
+      
       if (contador <= 0) {
         document.getElementById("subtrair").disabled = true;
       } else {
         document.getElementById("subtrair").disabled = false;
       }
 
-      // Track page view
       if (window.va) {
         window.va('track', 'Page View', {
           pagina: 'contador',
-          valor_inicial: contador
+          valor_inicial: contador,
+          diario_inicial: contadorDiario
         });
       }
     });
 
-
+    // Fechar sidebar ao clicar fora
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const toggle = document.querySelector('.sidebar-toggle');
+      
+      if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
   </script>
 </body>
 
