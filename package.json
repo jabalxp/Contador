@@ -1,4 +1,12 @@
 {
+  "name": "contador",
+  "version": "1.0.0",
+  "description": "Contador de visitas",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "build": "echo 'No build needed'"
+  },
   "dependencies": {
     "@vercel/analytics": "^1.5.0"
   }
