@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            top: 250px;
+            position: relative;
+            background-color: #F1F5F8;
+        }
+
+        div {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        #resetar, #somar, #subtrair{
+            border-radius: 35px;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+        }
+
+        #resetar:hover {
+            border-color: red;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+
+        #somar:hover {
+            border-color: green;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+
+        #subtrair:hover {
+            border-color: yellow;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+
+        p{
+            font-size: 100px;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            color:cadetblue;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Contador de Punheta</h1>
+
+    <p id="contador">0</p>
+    <div>
+        <button id="somar" onclick="somar()">Aumentar</button>
+        <button id="subtrair" onclick="subtrair()" disabled>Diminuir</button>
+        <button type="reset" onclick="resetar()" id="resetar">Resetar</button>
+    </div>
+    <script>
+        let contador = 0;
+
+        function somar() {
+            contador++;
+            document.getElementById("contador").innerText = contador;
+            if (contador > 0) {
+                document.getElementById("subtrair").disabled = false;
+            }
+        }
+
+        function subtrair() {
+            contador--;
+            document.getElementById("contador").innerText = contador;
+            if (contador <= 0) {
+                document.getElementById("subtrair").disabled = true;
+            } else {
+                document.getElementById("subtrair").disabled = false;
+            }
+        }
+
+        function resetar() {
+            contador = 0;
+            document.getElementById("contador").innerText = contador;
+            if (contador <= 0) {
+                document.getElementById("subtrair").disabled = true;
+            } else {
+                document.getElementById("subtrair").disabled = false;
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>
