@@ -33,7 +33,7 @@
       border-radius: 10px;
       padding: 20px;
       transition: left 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       z-index: 1000;
       overflow-y: auto;
     }
@@ -64,6 +64,30 @@
       background: #555;
     }
 
+    /* Botão de mudança de versão */
+    .version-toggle {
+      position: fixed;
+      top: 80px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      background: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+    }
+
+    .version-toggle:hover {
+      background: #c2185b;
+    }
+
     .sidebar h3 {
       margin: 0 0 15px 0;
       color: #333;
@@ -74,6 +98,7 @@
     .month-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 8px 0;
       border-bottom: 1px solid #eee;
     }
@@ -92,11 +117,17 @@
       font-weight: bold;
     }
 
+    .daily-count {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
     /* Contador diário */
     .contador-diario {
       margin: 20px 0;
       padding: 15px;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255, 255, 255, 0.8);
       border-radius: 10px;
       border: 2px solid #ddd;
       display: inline-block;
@@ -114,6 +145,100 @@
       color: orange;
     }
 
+    /* Modal de confirmação */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 30px;
+      border: 2px solid #333;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s;
+    }
+
+    .modal h3 {
+      color: #d32f2f;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .modal p {
+      font-size: 16px !important;
+      color: #555;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .modal-button.confirm {
+      background-color: #d32f2f;
+      color: white;
+    }
+
+    .modal-button.confirm:hover {
+      background-color: #b71c1c;
+    }
+
+    .modal-button.cancel {
+      background-color: #666;
+      color: white;
+    }
+
+    .modal-button.cancel:hover {
+      background-color: #444;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
 
     #resetar,
     #somar,
@@ -169,7 +294,9 @@
         font-size: 30px !important;
       }
 
-      #resetar, #somar, #subtrair {
+      #resetar,
+      #somar,
+      #subtrair {
         padding: 15px 20px;
         margin: 5px;
         font-size: 16px;
@@ -185,11 +312,22 @@
         left: 10px;
       }
 
-      .sidebar-toggle {
+      .sidebar-toggle,
+      .version-toggle {
         top: 10px;
-        left: 10px;
         width: 45px;
         height: 45px;
+      }
+
+      .version-toggle {
+        top: 65px;
+        left: 10px;
+      }
+
+      .modal-content {
+        margin: 25% auto;
+        width: 95%;
+        padding: 20px;
       }
     }
 
@@ -220,19 +358,44 @@
       .sidebar.open {
         left: 10px;
       }
+
+      .modal-content {
+        margin: 30% auto;
+        padding: 15px;
+      }
+
+      .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
     }
   </style>
 </head>
 
 <body>
   <!-- Menu lateral -->
-  <button class="sidebar-toggle" onclick="toggleSidebar()">📊</button>
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir histórico mensal">📊</button>
+  <button class="version-toggle" onclick="trocarVersao()" aria-label="Trocar versão">♀️</button>
+
   <div class="sidebar" id="sidebar">
     <h3>Histórico Mensal</h3>
     <div id="historico-mensal"></div>
   </div>
 
-  <h1>Contador de Punheta</h1>
+  <!-- Modal de confirmação -->
+  <div id="modal-reset" class="modal">
+    <div class="modal-content">
+      <h3>⚠️ Confirmar Reset</h3>
+      <p>Tem certeza que deseja resetar <strong>TODO</strong> o histórico do mês atual? Esta ação não pode ser desfeita!
+      </p>
+      <div class="modal-buttons">
+        <button class="modal-button confirm" onclick="confirmarReset()">Sim, apagar tudo</button>
+        <button class="modal-button cancel" onclick="fecharModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <h1 id="titulo">Contador de Punheta</h1>
 
   <!-- Contador diário -->
   <div class="contador-diario">
@@ -244,17 +407,66 @@
   <div>
     <button id="somar" onclick="somar()">Aumentar</button>
     <button id="subtrair" onclick="subtrair()" disabled>Diminuir</button>
-    <button type="reset" onclick="resetar()" id="resetar">Resetar</button>
+    <button type="reset" onclick="abrirModalReset()" id="resetar">Resetar</button>
   </div>
+
   <script>
     // Variáveis globais
     let contador = localStorage.getItem("contador") !== null ? parseInt(localStorage.getItem("contador")) : 0;
     let contadorDiario = 0;
+    let versaoFeminina = localStorage.getItem("versaoFeminina") === "true";
+
+    // Aplicar versão salva
+    if (versaoFeminina) {
+      aplicarVersaoFeminina();
+    }
+
+    // Função para trocar versão
+    function trocarVersao() {
+      versaoFeminina = !versaoFeminina;
+      localStorage.setItem("versaoFeminina", versaoFeminina);
+
+      if (versaoFeminina) {
+        aplicarVersaoFeminina();
+      } else {
+        aplicarVersaoMasculina();
+      }
+
+      if (window.va) {
+        window.va('track', 'Versão Trocada', {
+          versao: versaoFeminina ? 'feminina' : 'masculina'
+        });
+      }
+    }
+
+    function aplicarVersaoFeminina() {
+      document.getElementById("titulo").innerText = "Contador de Siririca";
+      document.querySelector(".version-toggle").innerText = "♂️";
+      document.querySelector(".version-toggle").setAttribute("aria-label", "Trocar para versão masculina");
+
+      // Alterar background para cor feminina
+      document.body.style.backgroundColor = "#FCE4EC";
+    }
+
+    function aplicarVersaoMasculina() {
+      document.getElementById("titulo").innerText = "Contador de Punheta";
+      document.querySelector(".version-toggle").innerText = "♀️";
+      document.querySelector(".version-toggle").setAttribute("aria-label", "Trocar para versão feminina");
+
+      // Voltar background para cor original masculina
+      document.body.style.backgroundColor = "#F1F5F8";
+    }
+
 
     // Função para toggle do sidebar
     function toggleSidebar() {
       const sidebar = document.getElementById("sidebar");
       sidebar.classList.toggle("open");
+    }
+
+    // Função para obter chave do dia atual
+    function obterChaveDia(data = new Date()) {
+      return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}-${String(data.getDate()).padStart(2, '0')}`;
     }
 
     // Função para obter chave do mês atual
@@ -265,66 +477,95 @@
     // Função para obter nome do mês
     function obterNomeMes(chaveMes) {
       const [ano, mes] = chaveMes.split('-');
-      const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
-                     'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+        'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
       return `${meses[parseInt(mes) - 1]} ${ano}`;
     }
 
-    // Função para salvar histórico mensal
-    function salvarHistoricoMensal(incremento = 0) {
+    // Função para salvar histórico mensal e diário
+    function salvarHistorico(incremento = 0) {
       const chaveMes = obterChaveMes();
-      const historico = JSON.parse(localStorage.getItem("historicoMensal") || "{}");
-      historico[chaveMes] = (historico[chaveMes] || 0) + incremento;
-      localStorage.setItem("historicoMensal", JSON.stringify(historico));
+      const chaveDia = obterChaveDia();
+
+      // Salvar histórico mensal
+      const historicoMensal = JSON.parse(localStorage.getItem("historicoMensal") || "{}");
+      historicoMensal[chaveMes] = (historicoMensal[chaveMes] || 0) + incremento;
+      localStorage.setItem("historicoMensal", JSON.stringify(historicoMensal));
+
+      // Salvar histórico diário
+      const historicoDiario = JSON.parse(localStorage.getItem("historicoDiario") || "{}");
+      if (!historicoDiario[chaveMes]) {
+        historicoDiario[chaveMes] = {};
+      }
+      historicoDiario[chaveMes][chaveDia] = (historicoDiario[chaveMes][chaveDia] || 0) + incremento;
+      localStorage.setItem("historicoDiario", JSON.stringify(historicoDiario));
+
       atualizarSidebar();
     }
 
     // Função para atualizar sidebar com histórico
     function atualizarSidebar() {
-      const historico = JSON.parse(localStorage.getItem("historicoMensal") || "{}");
+      const historicoMensal = JSON.parse(localStorage.getItem("historicoMensal") || "{}");
+      const historicoDiario = JSON.parse(localStorage.getItem("historicoDiario") || "{}");
       const historicoDiv = document.getElementById("historico-mensal");
-      
-      if (Object.keys(historico).length === 0) {
+
+      if (Object.keys(historicoMensal).length === 0) {
         historicoDiv.innerHTML = '<p style="color: #999;">Nenhum dado ainda</p>';
         return;
       }
 
-      const mesesOrdenados = Object.keys(historico).sort().reverse();
+      const mesesOrdenados = Object.keys(historicoMensal).sort().reverse();
       let html = '';
-      
+
       mesesOrdenados.forEach(chaveMes => {
         const nomeMes = obterNomeMes(chaveMes);
-        const quantidade = historico[chaveMes];
+        const quantidadeMensal = historicoMensal[chaveMes];
+
+        // Calcular maior dia do mês
+        let maiorDia = 0;
+        let diaMaior = '';
+        if (historicoDiario[chaveMes]) {
+          Object.keys(historicoDiario[chaveMes]).forEach(dia => {
+            const quantDia = historicoDiario[chaveMes][dia];
+            if (quantDia > maiorDia) {
+              maiorDia = quantDia;
+              diaMaior = dia.split('-')[2];
+            }
+          });
+        }
+
         html += `
           <div class="month-item">
-            <span class="month-name">${nomeMes}</span>
-            <span class="month-count">${quantidade}</span>
+            <div>
+              <div class="month-name">${nomeMes}</div>
+              ${maiorDia > 0 ? `<div class="daily-count">Melhor dia: ${diaMaior}/${chaveMes.split('-')[1]} (${maiorDia}x)</div>` : ''}
+            </div>
+            <span class="month-count">${quantidadeMensal}</span>
           </div>
         `;
       });
-      
+
       historicoDiv.innerHTML = html;
     }
 
-    // Contador diário com reset 24h
+    // Contador diário com reset a cada dia
     function gerenciarContadorDiario() {
-      const agora = new Date();
-      const ultimaData = localStorage.getItem("ultimaDataDiaria");
-      const hoje = agora.toISOString().split('T')[0];
-      
-      if (ultimaData !== hoje) {
+      const chaveDia = obterChaveDia();
+      const ultimoDia = localStorage.getItem("ultimoDia");
+
+      if (ultimoDia !== chaveDia) {
         // Reset diário
         contadorDiario = 0;
         localStorage.setItem("contadorDiario", "0");
-        localStorage.setItem("ultimaDataDiaria", hoje);
+        localStorage.setItem("ultimoDia", chaveDia);
       } else {
         contadorDiario = parseInt(localStorage.getItem("contadorDiario") || "0");
       }
-      
+
       document.getElementById("contador-diario").innerText = contadorDiario;
     }
 
-    // Contador mensal existente
+    // Contador mensal existente (mantido)
     let dataReset = localStorage.getItem("dataReset");
     if (!dataReset) {
       const hoje = new Date();
@@ -364,15 +605,15 @@
     function somar() {
       contador++;
       contadorDiario++;
-      
+
       document.getElementById("contador").innerText = contador;
       document.getElementById("contador-diario").innerText = contadorDiario;
-      
+
       localStorage.setItem("contador", contador);
       localStorage.setItem("contadorDiario", contadorDiario);
-      
-      salvarHistoricoMensal(1);
-      
+
+      salvarHistorico(1);
+
       if (contador > 0) {
         document.getElementById("subtrair").disabled = false;
       }
@@ -381,6 +622,7 @@
         window.va('track', 'Contador Aumentado', {
           valor: contador,
           diario: contadorDiario,
+          versao: versaoFeminina ? 'feminina' : 'masculina',
           acao: 'somar'
         });
       }
@@ -392,15 +634,15 @@
         if (contadorDiario > 0) {
           contadorDiario--;
         }
-        
+
         document.getElementById("contador").innerText = contador;
         document.getElementById("contador-diario").innerText = contadorDiario;
-        
+
         localStorage.setItem("contador", contador);
         localStorage.setItem("contadorDiario", contadorDiario);
-        
-        salvarHistoricoMensal(-1);
-        
+
+        salvarHistorico(-1);
+
         if (contador <= 0) {
           document.getElementById("subtrair").disabled = true;
         }
@@ -409,17 +651,50 @@
           window.va('track', 'Contador Diminuído', {
             valor: contador,
             diario: contadorDiario,
+            versao: versaoFeminina ? 'feminina' : 'masculina',
             acao: 'subtrair'
           });
         }
       }
     }
 
-    function resetar() {
+    // Funções do modal
+    function abrirModalReset() {
+      document.getElementById("modal-reset").style.display = "block";
+      document.body.style.overflow = "hidden"; // Impede scroll
+    }
+
+    function fecharModal() {
+      document.getElementById("modal-reset").style.display = "none";
+      document.body.style.overflow = "auto"; // Restaura scroll
+    }
+
+    function confirmarReset() {
+      const chaveMes = obterChaveMes();
+
+      // Reset completo do mês atual
       contador = 0;
+      contadorDiario = 0;
+
+      // Atualizar displays
       document.getElementById("contador").innerText = contador;
+      document.getElementById("contador-diario").innerText = contadorDiario;
+
+      // Remover do localStorage
       localStorage.setItem("contador", contador);
-      
+      localStorage.setItem("contadorDiario", contadorDiario);
+
+      // Remover histórico mensal do mês atual
+      const historicoMensal = JSON.parse(localStorage.getItem("historicoMensal") || "{}");
+      delete historicoMensal[chaveMes];
+      localStorage.setItem("historicoMensal", JSON.stringify(historicoMensal));
+
+      // Remover histórico diário do mês atual
+      const historicoDiario = JSON.parse(localStorage.getItem("historicoDiario") || "{}");
+      delete historicoDiario[chaveMes];
+      localStorage.setItem("historicoDiario", JSON.stringify(historicoDiario));
+
+      // Recalcular data de reset
       const hoje = new Date();
       let proximoMes = hoje.getMonth() + 1;
       let ano = hoje.getFullYear();
@@ -432,24 +707,26 @@
       if (dia > ultimoDiaProxMes) dia = ultimoDiaProxMes;
       const novaDataReset = new Date(ano, proximoMes, dia).toISOString().split('T')[0];
       localStorage.setItem("dataReset", novaDataReset);
-      dataReset = novaDataReset;
-      
+
+      atualizarSidebar();
       document.getElementById("subtrair").disabled = true;
+      fecharModal();
 
       if (window.va) {
-        window.va('track', 'Contador Resetado', {
-          valor: contador,
-          acao: 'resetar'
+        window.va('track', 'Reset Completo', {
+          mes: chaveMes,
+          versao: versaoFeminina ? 'feminina' : 'masculina',
+          acao: 'reset_completo'
         });
       }
     }
 
     // Inicialização
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("contador").innerText = contador;
       gerenciarContadorDiario();
       atualizarSidebar();
-      
+
       if (contador <= 0) {
         document.getElementById("subtrair").disabled = true;
       } else {
@@ -460,18 +737,33 @@
         window.va('track', 'Page View', {
           pagina: 'contador',
           valor_inicial: contador,
-          diario_inicial: contadorDiario
+          diario_inicial: contadorDiario,
+          versao: versaoFeminina ? 'feminina' : 'masculina'
         });
       }
     });
 
     // Fechar sidebar ao clicar fora
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
       const sidebar = document.getElementById('sidebar');
       const toggle = document.querySelector('.sidebar-toggle');
-      
+
       if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
         sidebar.classList.remove('open');
+      }
+    });
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modal-reset').addEventListener('click', function (event) {
+      if (event.target === this) {
+        fecharModal();
+      }
+    });
+
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        fecharModal();
       }
     });
   </script>
